@@ -1,0 +1,103 @@
+language: php
+
+sudo: false
+
+cache:
+  directories:
+    - $HOME/.composer/cache
+    - jar
+
+php:
+  - 5.6
+  - 7.0
+  - 7.1
+  - 7.2
+  - 7.3
+
+env:
+  global:
+    - DISPLAY=:99.0
+    - BROWSER_NAME="htmlunit"
+    - SELENIUM_MAJOR_VERSION="3.8"
+    - SELENIUM_MINOR_VERSION="1"
+    - GECKODRIVER_VERSION="v0.24.0"
+    - WEBDRIVER=selenium
+
+matrix:
+  fast_finish: true
+  include:
+    - php: 7.3
+      env: WEBDRIVER=selenium-remote
+      sudo: required
+      services:
+        - docker
+    # Codestyle check build
+    - php: 7.3
+      env: CHECK_CODESTYLE=1
+      before_install:
+        - phpenv config-rm xdebug.ini
+      before_script: ~
+      script:
+        - composer require phpstan/phpstan-shim # Not part of require-dev, because it won't install on PHP 5.6
+        - composer analyze
+        - composer codestyle:check
+      after_script: ~
+      after_success: ~
+
+install:
+  - travis_retry composer self-update
+  - travis_retry composer update --no-interaction $DEPENDENCIES
+
+before_script:
+  - |
+    if [ "$BROWSER_NAME" = "chrome" ]
+    then
+      mkdir chromedriver
+      CHROME_VERSION=`google-chrome-stable --version | awk '{print $NF}' | sed 's/\.[0-9]*$//'`
+      echo "Chrome version is $CHROME_VERSION"
+      CHROMEDRIVER_VERSION=`curl https://chromedriver.storage.googleapis.com/LATEST_RELEASE_$CHROME_VERSION`
+      echo "chromedriver version is $CHROMEDRIVER_VERSION"
+      wget -q -t 3 https://chromedriver.storage.googleapis.com/$CHROMEDRIVER_VERSION/chromedriver_linux64.zip
+      unzip chromedriver_linux64 -d chromedriver
+      export CHROMEDRIVER_PATH=$PWD/chromedriver/chromedriver
+    fi
+  - |
+    if [ "$BROWSER_NAME" = "firefox" ]
+    then
+    mkdir geckodriver
+      wget -q -t 3 https://github.com/mozilla/geckodriver/releases/download/$GECKODRIVER_VERSION/geckodriver-$GECKODRIVER_VERSION-linux64.tar.gz
+      tar xzf geckodriver-$GECKODRIVER_VERSION-linux64.tar.gz -C geckodriver
+      export PATH="$PATH:`pwd`/geckodriver"
+    fi
+  - sh -e /etc/init.d/xvfb start
+  - |
+    if [ ! -f jar/selenium-server-standalone-$SELENIUM_MAJOR_VERSION.$SELENIUM_MINOR_VERSION.jar ]
+    then
+      wget -q -t 3 -P jar https://selenium-release.storage.googleapis.com/$SELENIUM_MAJOR_VERSION/selenium-server-standalone-$SELENIUM_MAJOR_VERSION.$SELENIUM_MINOR_VERSION.jar
+    fi
+  - |
+    if [ "$GECKODRIVER" = "1" ]
+    then
+      geckodriver/geckodriver &> ./logs/geckodriver.log &
+    else
+      java -Dwebdriver.chrome.driver="$CHROMEDRIVER_PATH" -jar jar/selenium-server-standalone-$SELENIUM_MAJOR_VERSION.$SELENIUM_MINOR_VERSION.jar -log ./logs/selenium.log > /dev/null 2>&1 &
+    fi
+  - until $(echo | nc localhost 4444); do sleep 1; echo Waiting for Selenium server on port 4444...; done; echo "Selenium server started"
+  # Start a webserver for web fixtures. Force using PHP 5.6 to be able to run it on PHP 5.3.
+  - MINK_PHP_BIN=~/.phpenv/versions/5.6/bin/php vendor/bin/mink-test-server > /dev/null 2>&1 &
+  - |
+    until $(echo | nc localhost 8000)
+    do
+      sleep 1
+      echo waiting for PHP server on port 8000...
+    done
+    echo "PHP server started"
+
+script: phpunit -v --coverage-clover=coverage.clover
+
+after_script:
+  - if [ -f ./logs/selenium.log ]; then cat ./logs/selenium.log; fi
+  - if [ -f ./logs/php-server.log ]; then cat ./logs/php-server.log; fi
+
+after_failure:
+  - cat /tmp/webdriver_output.txt

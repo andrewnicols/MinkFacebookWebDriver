@@ -1,0 +1,44 @@
+{
+    "name": "silverstripe/mink-facebook-web-driver",
+    "description": "Mink driver for facebook's webdriver",
+    "keywords": [
+        "webdriver",
+        "javascript",
+        "ajax",
+        "testing",
+        "browser"
+    ],
+    "homepage": "http://mink.behat.org/",
+    "type": "mink-driver",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Andrew Nicols",
+            "email": "andrew@nicols.co.uk",
+            "homepage": "https://github.com/andrewnicols"
+        }
+    ],
+    "require": {
+        "php": "^5.6 | ^7",
+        "behat/mink": "~1.7@dev",
+        "facebook/webdriver": "^1.4"
+    },
+    "require-dev": {
+        "mink/driver-testsuite": "dev-master"
+    },
+    "autoload": {
+        "psr-4": {
+            "Moodle\\MinkFacebookWebDriver\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Moodle\\MinkFacebookWebDriver\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.0.x-dev"
+        }
+    }
+}
