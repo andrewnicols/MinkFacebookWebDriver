@@ -240,7 +240,7 @@ class FacebookWebDriver extends CoreDriver
     protected function withSyn()
     {
         $hasSyn = $this->webDriver->executeScript(
-            'return typeof window["Syn"]!=="undefined" && typeof window["Syn"].trigger!=="undefined"'
+            'return typeof window["syn"]!=="undefined" && typeof window["syn"].trigger!=="undefined"'
         );
 
         if (!$hasSyn) {
@@ -1172,7 +1172,8 @@ JS;
      */
     protected function trigger($xpath, $event, $options = '{}')
     {
-        $script = 'window.Syn.trigger("' . $event . '", ' . $options . ', {{ELEMENT}})';
-        $this->withSyn()->executeJsOnXpath($xpath, $script);
+        $script = 'window.syn.trigger({{ELEMENT}}, "' . $event . '", ' . $options . ')';
+        $this->withSyn();
+        $this->executeJsOnXpath($xpath, $script);
     }
 }
