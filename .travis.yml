@@ -1,6 +1,8 @@
 language: php
+dist: bionic
 
-sudo: false
+services:
+  - xvfb
 
 cache:
   directories:
@@ -8,47 +10,28 @@ cache:
     - jar
 
 php:
-  - 5.6
-  - 7.0
-  - 7.1
   - 7.2
   - 7.3
 
 env:
   global:
     - DISPLAY=:99.0
-    - BROWSER_NAME="htmlunit"
-    - SELENIUM_MAJOR_VERSION="3.8"
-    - SELENIUM_MINOR_VERSION="1"
-    - GECKODRIVER_VERSION="v0.24.0"
+    - SELENIUM_MAJOR_VERSION="3.141"
+    - SELENIUM_MINOR_VERSION="59"
+    - GECKODRIVER_VERSION="v0.26.0"
     - WEBDRIVER=selenium
+  jobs:
+    - BROWSER_NAME=chrome CHROMEDRIVER=0
+    - BROWSER_NAME=firefox GECKODRIVER=0
+    - BROWSER_NAME=chrome CHROMEDRIVER=1
+    #- BROWSER_NAME=firefox GECKODRIVER=1
 
-matrix:
+jobs:
   fast_finish: true
-  include:
-    - php: 7.3
-      env: WEBDRIVER=selenium-remote
-      sudo: required
-      services:
-        - docker
-    # Codestyle check build
-    - php: 7.3
-      env: CHECK_CODESTYLE=1
-      before_install:
-        - phpenv config-rm xdebug.ini
-      before_script: ~
-      script:
-        - composer require phpstan/phpstan-shim # Not part of require-dev, because it won't install on PHP 5.6
-        - composer analyze
-        - composer codestyle:check
-      after_script: ~
-      after_success: ~
 
 install:
-  - travis_retry composer self-update
-  - travis_retry composer update --no-interaction $DEPENDENCIES
-
-before_script:
+  - travis_retry composer install --no-interaction --prefer-dist
+  - mkdir -p ./logs
   - |
     if [ "$BROWSER_NAME" = "chrome" ]
     then
@@ -69,35 +52,36 @@ before_script:
       tar xzf geckodriver-$GECKODRIVER_VERSION-linux64.tar.gz -C geckodriver
       export PATH="$PATH:`pwd`/geckodriver"
     fi
-  - sh -e /etc/init.d/xvfb start
   - |
-    if [ ! -f jar/selenium-server-standalone-$SELENIUM_MAJOR_VERSION.$SELENIUM_MINOR_VERSION.jar ]
+    if [ "$WEBDRIVER" = "selenium" ] && [ ! -f jar/selenium-server-standalone.jar ]
     then
-      wget -q -t 3 -P jar https://selenium-release.storage.googleapis.com/$SELENIUM_MAJOR_VERSION/selenium-server-standalone-$SELENIUM_MAJOR_VERSION.$SELENIUM_MINOR_VERSION.jar
+      mkdir -p jar
+      wget -q -t 3 -O jar/selenium-server-standalone.jar https://selenium-release.storage.googleapis.com/$SELENIUM_MAJOR_VERSION/selenium-server-standalone-$SELENIUM_MAJOR_VERSION.$SELENIUM_MINOR_VERSION.jar
     fi
+
+before_script:
   - |
     if [ "$GECKODRIVER" = "1" ]
     then
       geckodriver/geckodriver &> ./logs/geckodriver.log &
-    else
-      java -Dwebdriver.chrome.driver="$CHROMEDRIVER_PATH" -jar jar/selenium-server-standalone-$SELENIUM_MAJOR_VERSION.$SELENIUM_MINOR_VERSION.jar -log ./logs/selenium.log > /dev/null 2>&1 &
-    fi
-  - until $(echo | nc localhost 4444); do sleep 1; echo Waiting for Selenium server on port 4444...; done; echo "Selenium server started"
-  # Start a webserver for web fixtures. Force using PHP 5.6 to be able to run it on PHP 5.3.
-  - MINK_PHP_BIN=~/.phpenv/versions/5.6/bin/php vendor/bin/mink-test-server > /dev/null 2>&1 &
-  - |
-    until $(echo | nc localhost 8000)
-    do
-      sleep 1
-      echo waiting for PHP server on port 8000...
-    done
-    echo "PHP server started"
 
-script: phpunit -v --coverage-clover=coverage.clover
+    elif [ "$CHROMEDRIVER" = "1" ]
+    then
+      $CHROMEDRIVER_PATH --port=4444 --url-base=/wd/hub &> ./logs/chromedriver.log &
+
+    elif [ "$WEBDRIVER" = "selenium" ]
+    then
+      java -Dwebdriver.chrome.driver="$PWD/chromedriver/chromedriver" -Dwebdriver.gecko.driver="$PWD/geckodriver/geckodriver" -jar jar/selenium-server-standalone.jar -log ./logs/selenium.log &
+    fi
+  - vendor/bin/mink-test-server > ./logs/php-server.log 2>&1 &
+  - sleep 5
+
+script: ./vendor/bin/phpunit --testdox
 
 after_script:
   - if [ -f ./logs/selenium.log ]; then cat ./logs/selenium.log; fi
   - if [ -f ./logs/php-server.log ]; then cat ./logs/php-server.log; fi
 
 after_failure:
-  - cat /tmp/webdriver_output.txt
+  - if [ -f ./logs/selenium.log ]; then cat ./logs/selenium.log; fi
+  - if [ -f ./logs/php-server.log ]; then cat ./logs/php-server.log; fi

@@ -17,8 +17,8 @@ class FacebookWebDriverConfig extends AbstractConfig
      */
     public function createDriver()
     {
-        $browser = $_SERVER['WEB_FIXTURES_BROWSER'];
-        $seleniumHost = $_SERVER['DRIVER_URL'];
+        $browser = $_ENV['BROWSER_NAME'];
+        $seleniumHost = $_ENV['DRIVER_URL'];
 
         return new FacebookWebDriver($browser, [], $seleniumHost);
     }
