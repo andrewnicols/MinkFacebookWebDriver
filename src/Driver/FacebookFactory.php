@@ -19,8 +19,6 @@ use Symfony\Component\DependencyInjection\Definition;
 /**
  * Factory required to provide facebook webriver support. This must be added to
  * {@see Behat\MinkExtension\ServiceContainer\MinkExtension} via registerDriverFactory().
- *
- * Base factory on older (but compatible config area) selenium 2 factory
  */
 class FacebookFactory implements DriverFactory
 {
@@ -79,6 +77,9 @@ class FacebookFactory implements DriverFactory
                 ->scalarNode('wd_host')
                     ->defaultValue('http://localhost:4444/wd/hub')
                     ->end()
+                ->scalarNode('browser')
+                    ->defaultValue('*%mink.browser_name%')
+                    ->end()
             ->end()
         ;
     }
@@ -89,11 +90,14 @@ class FacebookFactory implements DriverFactory
     public function buildDriver(array $config)
     {
         // Build driver definition
-        return new Definition(FacebookWebDriver::class, [
-            $config['capabilities']['browserName'],
-            array_replace($this->guessCapabilities(), $config['capabilities']),
-            $config['wd_host'],
-        ]);
+        return new Definition(
+            FacebookWebDriver::class,
+            [
+                $config['capabilities']['browserName'],
+                array_replace($this->guessCapabilities(), $config['capabilities']),
+                $config['wd_host'],
+            ]
+        );
     }
 
     /**
