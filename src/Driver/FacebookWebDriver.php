@@ -42,41 +42,41 @@ class FacebookWebDriver extends CoreDriver
      *
      * @var string
      */
-    private $webDriverHost = null;
+    protected $webDriverHost = null;
 
     /**
      * Whether the browser has been started
      * @var Boolean
      */
-    private $started = false;
+    protected $started = false;
 
     /**
      * The WebDriver instance
      *
      * @var RemoteWebDriver
      */
-    private $webDriver;
+    protected $webDriver;
 
     /**
      * @var string
      */
-    private $browserName;
+    protected $browserName;
 
     /**
      * @var DesiredCapabilities
      */
-    private $desiredCapabilities;
+    protected $desiredCapabilities;
 
     /**
      * The timeout configuration
      * @var array
      */
-    private $timeouts = [];
+    protected $timeouts = [];
 
     /**
      * @var Escaper
      */
-    private $xpathEscaper;
+    protected $xpathEscaper;
 
     /**
      * Instantiates the driver.
@@ -307,7 +307,7 @@ class FacebookWebDriver extends CoreDriver
      *
      * @return mixed
      */
-    private function executeJsOnElement(RemoteWebElement $element, $script, $sync = true)
+    protected function executeJsOnElement(RemoteWebElement $element, $script, $sync = true)
     {
         $script  = str_replace('{{ELEMENT}}', 'arguments[0]', $script);
         if ($sync) {
@@ -352,7 +352,7 @@ class FacebookWebDriver extends CoreDriver
      *
      * @throws DriverException
      */
-    private function applyTimeouts()
+    protected function applyTimeouts()
     {
         try {
             $timeouts = $this->webDriver->manage()->timeouts();
@@ -797,7 +797,7 @@ JS;
      *
      * @param RemoteWebElement $element
      */
-    private function ensureElementIsVisible(RemoteWebElement $element)
+    protected function ensureElementIsVisible(RemoteWebElement $element)
     {
         if (!$element->isDisplayed()) {
             $this->webDriver->executeScript('arguments[0].scrollIntoView(true);', [$element]);
@@ -809,7 +809,7 @@ JS;
      *
      * @param RemoteWebElement $element
      */
-    private function clickOnElement(RemoteWebElement $element)
+    protected function clickOnElement(RemoteWebElement $element)
     {
         $this->ensureElementIsVisible($element);
         $element->click();
@@ -828,7 +828,7 @@ JS;
      *
      * @param RemoteWebElement $element
      */
-    private function doubleClickOnElement(RemoteWebElement $element)
+    protected function doubleClickOnElement(RemoteWebElement $element)
     {
         $this->ensureElementIsVisible($element);
         $this->webDriver->getMouse()->doubleClick($element->getCoordinates());
@@ -842,7 +842,7 @@ JS;
         $this->rightClickOnElement($this->findElement($xpath));
     }
 
-    private function rightClickOnElement(RemoteWebElement $element)
+    protected function rightClickOnElement(RemoteWebElement $element)
     {
         $this->ensureElementIsVisible($element);
         $this->webDriver->getMouse()->contextClick($element->getCoordinates());
@@ -881,7 +881,7 @@ JS;
      *
      * @param RemoteWebElement $element
      */
-    private function mouseOverElement(RemoteWebElement $element)
+    protected function mouseOverElement(RemoteWebElement $element)
     {
         $this->ensureElementIsVisible($element);
         $this->webDriver->getMouse()->mouseMove($element->getCoordinates());
@@ -1034,7 +1034,7 @@ JS;
      * @param RemoteWebElement|null $parent Optional parent element
      * @return RemoteWebElement
      */
-    private function findElement($xpath, RemoteWebElement $parent = null)
+    protected function findElement($xpath, RemoteWebElement $parent = null)
     {
         $finder = WebDriverBy::xpath($xpath);
         return $parent
@@ -1050,7 +1050,7 @@ JS;
      *
      * @throws DriverException when the value cannot be found
      */
-    private function selectRadioValue(RemoteWebElement $element, $value)
+    protected function selectRadioValue(RemoteWebElement $element, $value)
     {
         // short-circuit when we already have the right button of the group to avoid XPath queries
         if ($element->getAttribute('value') === $value) {
@@ -1104,7 +1104,7 @@ XPATH;
      * @param string  $value
      * @param bool    $multiple
      */
-    private function selectOptionOnElement(RemoteWebElement $element, $value, $multiple = false)
+    protected function selectOptionOnElement(RemoteWebElement $element, $value, $multiple = false)
     {
         $escapedValue = $this->xpathEscaper->escapeLiteral($value);
         // The value of an option is the normalized version of its text when it has no value attribute
@@ -1131,7 +1131,7 @@ XPATH;
      *
      * @param RemoteWebElement $element
      */
-    private function deselectAllOptions(RemoteWebElement $element)
+    protected function deselectAllOptions(RemoteWebElement $element)
     {
         $script = <<<JS
 var node = {{ELEMENT}};
@@ -1154,7 +1154,7 @@ JS;
      *
      * @throws DriverException
      */
-    private function ensureInputType(RemoteWebElement $element, $xpath, $type, $action)
+    protected function ensureInputType(RemoteWebElement $element, $xpath, $type, $action)
     {
         if ('input' !== $element->getTagName()
             || $type !== $element->getAttribute('type')
@@ -1170,7 +1170,7 @@ JS;
      * @param string $event Event name
      * @param string $options Options to pass to window.syn.trigger
      */
-    private function trigger($xpath, $event, $options = '{}')
+    protected function trigger($xpath, $event, $options = '{}')
     {
         $script = 'window.Syn.trigger("' . $event . '", ' . $options . ', {{ELEMENT}})';
         $this->withSyn()->executeJsOnXpath($xpath, $script);
