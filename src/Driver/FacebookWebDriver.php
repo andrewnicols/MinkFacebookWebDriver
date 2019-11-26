@@ -464,7 +464,26 @@ class FacebookWebDriver extends CoreDriver
      */
     public function switchToWindow($name = null)
     {
-        $this->webDriver->switchTo()->window($name);
+        if (!$this->isW3cCompliant()) {
+            $this->webDriver->switchTo()->window($name);
+        } else {
+            $handles = $this->getWindowNames();
+            if ($name === null) {
+                $handle = reset($handles);
+                $this->webDriver->switchTo()->window($handle);
+
+                return;
+            }
+
+            foreach ($handles as $handle) {
+                $this->webDriver->switchTo()->window($handle);
+                $handlename = $this->evaluateScript('return window.name;');
+
+                if ($handlename === $name) {
+                    return;
+                }
+            }
+        }
     }
 
     /**
