@@ -2,6 +2,7 @@
 
 namespace Moodle\MinkFacebookWebDriver\Tests;
 
+use Behat\Mink\Tests\Driver\AbstractConfig;
 use Moodle\MinkFacebookWebDriver\Driver\FacebookWebDriver;
 
 class FacebookWebDriverConfig extends AbstractConfig
@@ -19,7 +20,7 @@ class FacebookWebDriverConfig extends AbstractConfig
         $browser = $_SERVER['WEB_FIXTURES_BROWSER'];
         $seleniumHost = $_SERVER['DRIVER_URL'];
 
-        return new FacebookWebDriver($browser, null, $seleniumHost);
+        return new FacebookWebDriver($browser, [], $seleniumHost);
     }
 
     /**
