@@ -771,7 +771,12 @@ JS;
             $element->clear();
         }
 
-        $element->sendKeys($value);
+        if ($element->getAttribute('value') !== '') {
+            $element->sendKeys($value);
+            $this->executeJsOnElement($element, '{{ELEMENT}}.value = "' . strval($value) . '";');
+        } else {
+            $element->sendKeys($value);
+        }
         $this->trigger($xpath, 'blur');
     }
 
