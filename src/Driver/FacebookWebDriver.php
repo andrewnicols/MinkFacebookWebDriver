@@ -740,6 +740,24 @@ JS;
 
                 return;
             }
+
+            if ('color' === $elementType) {
+                // Some browsers display a colour wheel which can only reliably be set via JS.
+                $this->executeJsOnElement($element, '{{ELEMENT}}.value = "' . strval($value) . '";');
+                $this->trigger($xpath, 'blur');
+
+                return;
+            }
+
+            if ('date' === $elementType) {
+                // Some browsers display a localised datestamp rather than the recognised yyyy-MM-dd format defined in
+                // https://html.spec.whatwg.org/#dates.
+                // Entering the value in the correct format leads to an incorrect result if we use the sendKeys method.
+                $this->executeJsOnElement($element, '{{ELEMENT}}.value = "' . strval($value) . '";');
+                $this->trigger($xpath, 'blur');
+
+                return;
+            }
         }
 
         $value = strval($value);
