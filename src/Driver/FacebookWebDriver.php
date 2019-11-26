@@ -770,7 +770,7 @@ JS;
         }
 
         $element->sendKeys($value);
-        $this->trigger($xpath, 'change');
+        $this->trigger($xpath, 'blur');
     }
 
     /**
