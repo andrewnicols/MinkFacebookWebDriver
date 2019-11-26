@@ -377,6 +377,16 @@ class FacebookWebDriver extends CoreDriver
     }
 
     /**
+     * Whether the browser in the current session is W3C Compliant.
+     *
+     * @return bool
+     */
+    public function isW3cCompliant()
+    {
+        return $this->getWebDriver()->isW3cCompliant();
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function isStarted()
