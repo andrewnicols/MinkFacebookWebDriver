@@ -847,7 +847,9 @@ JS;
      */
     public function click($xpath)
     {
-        $this->clickOnElement($this->findElement($xpath));
+        $element = $this->findElement($xpath);
+        $this->mouseOverElement($element);
+        $this->clickOnElement($element);
     }
 
     /**
