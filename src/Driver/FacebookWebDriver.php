@@ -857,8 +857,10 @@ JS;
      */
     protected function ensureElementIsVisible(RemoteWebElement $element)
     {
-        if (!$element->isDisplayed()) {
-            $this->webDriver->executeScript('arguments[0].scrollIntoView(true);', [$element]);
+        if ($this->isW3cCompliant()) {
+            $this->getWebDriver()->executeScript('arguments[0].scrollIntoView(true);', [$element]);
+        } else {
+            $element->getLocationOnScreenOnceScrolledIntoView();
         }
     }
 
