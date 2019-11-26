@@ -763,6 +763,9 @@ JS;
         $value = strval($value);
 
         if (in_array($elementName, array('input', 'textarea'))) {
+            // Some browsers (Chrome) only send the clear action to the _current_ element.
+            // We need to force the focus by sending an empty keyset to the element before clearing.
+            $element->sendKeys('');
             $element->clear();
         }
 
