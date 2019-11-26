@@ -736,6 +736,7 @@ JS;
 
             if ('file' === $elementType) {
                 // @todo - Check if this is correct way to upload files
+                $value = realpath($value);
                 $element->sendKeys($value);
                 // $element->postValue(array('value' => array(strval($value))));
 
