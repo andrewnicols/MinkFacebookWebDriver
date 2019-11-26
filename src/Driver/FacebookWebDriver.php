@@ -523,7 +523,15 @@ class FacebookWebDriver extends CoreDriver
      */
     public function getCookie($name)
     {
-        return $this->webDriver->manage()->getCookieNamed($name);
+        if ($this->isW3cCompliant()) {
+            if ($cookie = $this->webDriver->manage()->getCookieNamed($name)) {
+                return urldecode($cookie->getValue());
+            }
+        } else {
+            return $this->webDriver->manage()->getCookieNamed($name);
+        }
+
+        return null;
     }
 
     /**
