@@ -143,7 +143,17 @@ class FacebookWebDriver extends CoreDriver
 
         // Merge in other requested types
         foreach ($desiredCapabilities as $key => $value) {
-            $caps->setCapability($key, $value);
+            switch ($key) {
+                case 'firefox':
+                    $this->initFirefoxCapabilities($caps, $value);
+                    break;
+                case 'chrome':
+                    $this->initChromeCapabilities($caps, $value);
+                    break;
+                default:
+                    $caps->setCapability($key, $value);
+                    break;
+            }
         }
 
         return $caps;
@@ -193,6 +203,75 @@ class FacebookWebDriver extends CoreDriver
     {
         $this->desiredCapabilities = $desiredCapabilities;
         return $this;
+    }
+
+    /**
+     * Init firefox specific capabilities
+     *
+     * @link https://developer.mozilla.org/en-US/docs/Web/WebDriver/Capabilities/firefoxOptions
+     * @param DesiredCapabilities $caps
+     * @param array $config Firefox specific config capabilities
+     */
+    protected function initFirefoxCapabilities(DesiredCapabilities $caps, $config)
+    {
+        foreach ($config as $capability => $value) {
+            switch($capability)
+            {
+                default:
+                    $caps->setCapability($capability, $value);
+            }
+        }
+    }
+
+    /**
+     * Init chrome specific capabilities
+     *
+     * @link https://sites.google.com/a/chromium.org/chromedriver/capabilities
+     * @param DesiredCapabilities $caps
+     * @param array $config
+     */
+    protected function initChromeCapabilities(DesiredCapabilities $caps, $config)
+    {
+        $chromeOptions = [
+            'args' => [],
+        ];
+        foreach ($config as $capability => $value) {
+            switch($capability)
+            {
+                case 'chromeOptions':
+                    // This can be simplified when we remove the switches option.
+                    foreach ($value as $optionName => $optionValue) {
+                        if ($optionName === 'args') {
+                            $chromeOptions['args'] = array_merge($chromeOptions['args'], $optionValue);
+                        } else {
+                            $chromeOptions[$optionName] = $optionValue;
+                        }
+                    }
+                    break;
+                case 'switches':
+                    // Legacy.
+                    $chromeOptions['args'] = array_merge($chromeOptions['args'], $value);
+                    break;
+                case 'Proxy':
+                    $caps->setCapability('Proxy', $value);
+                    break;
+                case 'loggingPrefs':
+                    $caps->setCapability('loggingPrefs', $value);
+                    break;
+                case 'perfLoggingPrefs':
+                    $caps->setCapability('perfLoggingPrefs', $value);
+                    break;
+                default:
+                    $caps->setCapability($capability, $value);
+                    break;
+            }
+        }
+
+        if (empty($chromeOptions['args'])) {
+            unset($chromeOptions['args']);
+        }
+
+        $caps->setCapability('chromeOptions', $chromeOptions);
     }
 
     /**
