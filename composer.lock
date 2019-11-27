@@ -71,12 +71,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/andrewnicols/php-webdriver",
-                "reference": "25f1b352211d7ffb26597a2216f0aa56da36f4a6"
+                "reference": "ddbde2cbe30b3f415bc480b44299e6ad96b0b993"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/andrewnicols/php-webdriver/zipball/25f1b352211d7ffb26597a2216f0aa56da36f4a6",
-                "reference": "25f1b352211d7ffb26597a2216f0aa56da36f4a6",
+                "url": "https://api.github.com/repos/andrewnicols/php-webdriver/zipball/ddbde2cbe30b3f415bc480b44299e6ad96b0b993",
+                "reference": "ddbde2cbe30b3f415bc480b44299e6ad96b0b993",
                 "shasum": ""
             },
             "require": {
@@ -152,7 +152,7 @@
                 "forum": "https://www.facebook.com/groups/phpwebdriver/",
                 "source": "https://github.com/facebook/php-webdriver"
             },
-            "time": "2019-11-26T01:52:33+00:00"
+            "time": "2019-11-27T04:17:30+00:00"
         },
         {
             "name": "phpstan/phpstan-shim",
