@@ -311,28 +311,6 @@ class FacebookWebDriver extends CoreDriver
     }
 
     /**
-     * Makes sure that the Syn event library has been injected into the current page,
-     * and return $this for a fluid interface,
-     *
-     *     $this->withSyn()->executeJsOnXpath($xpath, $script);
-     *
-     * @return $this
-     */
-    protected function withSyn()
-    {
-        $hasSyn = $this->webDriver->executeScript(
-            'return typeof window["syn"]!=="undefined" && typeof window["syn"].trigger!=="undefined"'
-        );
-
-        if (!$hasSyn) {
-            $synJs = file_get_contents(__DIR__.'/Resources/syn.js');
-            $this->webDriver->executeScript($synJs);
-        }
-
-        return $this;
-    }
-
-    /**
      * Creates some options for key events
      *
      * @param string $char     the character or code
@@ -848,14 +826,34 @@ JS;
         if (in_array($elementName, array('input', 'textarea'))) {
             if ($this->isW3cCompliant()) {
 
+                // When we click on the element we click on the _middle_ of it.
                 $element->click();
+
                 $currentValue = $element->getAttribute('value');
                 if (!empty($currentValue)) {
-                    $deleteVal = str_repeat(WebDriverKeys::BACKSPACE, strlen($currentValue));
-                    $element->sendKeys($deleteVal);
+                    // Move to the start of the string and do a forward delete.
+                    $actions = [];
+                    // Go to the start of the string.
+                    $actions[] = ['type' => 'keyDown', 'value' => WebDriverKeys::HOME];
+                    $actions[] = ['type' => 'keyUp', 'value' => WebDriverKeys::HOME];
+
+                    // This could be a multiline
+                    $actions[] = ['type' => 'keyDown', 'value' => WebDriverKeys::CONTROL];
+                    $actions[] = ['type' => 'keyDown', 'value' => WebDriverKeys::HOME];
+                    $actions[] = ['type' => 'keyUp', 'value' => WebDriverKeys::HOME];
+                    $actions[] = ['type' => 'keyUp', 'value' => WebDriverKeys::CONTROL];
+                    $actions[] = ['type' => 'keyDown', 'value' => WebDriverKeys::COMMAND];
+                    $actions[] = ['type' => 'keyDown', 'value' => WebDriverKeys::HOME];
+                    $actions[] = ['type' => 'keyUp', 'value' => WebDriverKeys::HOME];
+                    $actions[] = ['type' => 'keyUp', 'value' => WebDriverKeys::COMMAND];
+
+                    foreach (str_split($currentValue) as $char) {
+                        $actions[] = ['type' => 'keyDown', 'value' => WebDriverKeys::DELETE];
+                        $actions[] = ['type' => 'keyUp', 'value' => WebDriverKeys::DELETE];
+                    }
                 }
 
-                $actions = [];
+                // Now enter the actual values.
                 foreach (str_split($value) as $char) {
                     $actions[] = ['type' => 'keyDown', 'value' => $char];
                     $actions[] = ['type' => 'keyUp', 'value' => $char];
@@ -870,14 +868,14 @@ JS;
                         ],
                     ],
                 ]);
-            } else {
-                $element->clear();
-            }
-        } else {
-            $element->clear();
-            $element->sendKeys($value);
-        }
 
+                $this->trigger($xpath, 'change');
+
+                return;
+            }
+        }
+        $element->clear();
+        $element->sendKeys($value);
         $this->trigger($xpath, 'blur');
     }
 
@@ -1078,8 +1076,27 @@ JS;
      */
     public function keyPress($xpath, $char, $modifier = null)
     {
-        $options = self::charToOptions($char, $modifier);
-        $this->trigger($xpath, 'keypress', $options);
+        $actions = [];
+
+        if ($modified) {
+            $actions[] = $actions[] = ['type' => 'keyDown', 'value' => $modifier];
+        }
+
+        $actions[] = ['type' => 'keyDown', 'value' => WebDriverKeys::HOME];
+        $actions[] = ['type' => 'keyUp', 'value' => WebDriverKeys::HOME];
+
+        if ($modified) {
+            $actions[] = $actions[] = ['type' => 'keyUp', 'value' => $modifier];
+        }
+        $this->webDriver->execute(DriverCommand::ACTIONS, [
+            'actions' => [
+                [
+                    'type' => 'key',
+                    'id' => 'keyboard',
+                    'actions' => $actions,
+                ],
+            ],
+        ]);
     }
 
     /**
@@ -1087,8 +1104,23 @@ JS;
      */
     public function keyDown($xpath, $char, $modifier = null)
     {
-        $options = self::charToOptions($char, $modifier);
-        $this->trigger($xpath, 'keydown', $options);
+        $actions = [];
+
+        if ($modified) {
+            $actions[] = $actions[] = ['type' => 'keyDown', 'value' => $modifier];
+        }
+
+        $actions[] = ['type' => 'keyDown', 'value' => WebDriverKeys::HOME];
+
+        $this->webDriver->execute(DriverCommand::ACTIONS, [
+            'actions' => [
+                [
+                    'type' => 'key',
+                    'id' => 'keyboard',
+                    'actions' => $actions,
+                ],
+            ],
+        ]);
     }
 
     /**
@@ -1096,8 +1128,23 @@ JS;
      */
     public function keyUp($xpath, $char, $modifier = null)
     {
-        $options = self::charToOptions($char, $modifier);
-        $this->trigger($xpath, 'keyup', $options);
+        $actions = [];
+
+        $actions[] = ['type' => 'keyUp', 'value' => WebDriverKeys::HOME];
+
+        if ($modified) {
+            $actions[] = $actions[] = ['type' => 'keyUp', 'value' => $modifier];
+        }
+
+        $this->webDriver->execute(DriverCommand::ACTIONS, [
+            'actions' => [
+                [
+                    'type' => 'key',
+                    'id' => 'keyboard',
+                    'actions' => $actions,
+                ],
+            ],
+        ]);
     }
 
     /**
@@ -1340,10 +1387,69 @@ JS;
      * @param string $event Event name
      * @param string $options Options to pass to window.syn.trigger
      */
-    protected function trigger($xpath, $event, $options = '{}')
+    protected function trigger($xpath, $event)
     {
-        $script = 'window.syn.trigger({{ELEMENT}}, "' . $event . '", ' . $options . ')';
-        $this->withSyn();
+        switch ($event) {
+            case 'change':
+                $this->dispatchChangeEvent($xpath);
+                break;
+            case 'blur':
+                $this->dispatchBlurEvent($xpath);
+                break;
+            default:
+                throw new \InvalidArgumentException("{$event} not implemented");
+                break;
+        }
+    }
+
+    /**
+     * Dispatch a 'change' event on the Node.
+     *
+     * @param string $xpath XPath to element to trigger event on
+     */
+    protected function dispatchChangeEvent($xpath) {
+        $script = <<<EOF
+{{ELEMENT}}.dispatchEvent(new Event("change", {
+    view: window,
+    bubbles: true,
+    cancelable: true,
+}));
+EOF;
+
+        $this->executeJsOnXpath($xpath, $script);
+    }
+
+    /**
+     * Dispatch a 'blur' event on the Node.
+     *
+     * @param string $xpath XPath to element to trigger event on
+     */
+    protected function dispatchBlurEvent($xpath) {
+        $script = <<<EOF
+{{ELEMENT}}.dispatchEvent(new Event("blur", {
+    view: window,
+    bubbles: true,
+    cancelable: true,
+}));
+EOF;
+
+        $this->executeJsOnXpath($xpath, $script);
+    }
+
+    /**
+     * Dispatch a 'focus' event on the Node.
+     *
+     * @param string $xpath XPath to element to trigger event on
+     */
+    protected function dispatchFocusEvent($xpath) {
+        $script = <<<EOF
+{{ELEMENT}}.dispatchEvent(new Event("focus", {
+    view: window,
+    bubbles: true,
+    cancelable: true,
+}));
+EOF;
+
         $this->executeJsOnXpath($xpath, $script);
     }
 }
