@@ -19,10 +19,12 @@ use Exception;
 use Facebook\WebDriver\Exception\NoSuchElementException;
 use Facebook\WebDriver\Exception\WebDriverException;
 use Facebook\WebDriver\Remote\DesiredCapabilities;
+use Facebook\WebDriver\Remote\DriverCommand;
 use Facebook\WebDriver\Remote\RemoteWebDriver;
 use Facebook\WebDriver\Remote\RemoteWebElement;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverDimension;
+use Facebook\WebDriver\WebDriverKeys;
 
 /**
  * Facebook webdriver
@@ -844,18 +846,38 @@ JS;
         $value = strval($value);
 
         if (in_array($elementName, array('input', 'textarea'))) {
-            // Some browsers (Chrome) only send the clear action to the _current_ element.
-            // We need to force the focus by sending an empty keyset to the element before clearing.
-            $element->sendKeys('');
+            if ($this->isW3cCompliant()) {
+
+                $element->click();
+                $currentValue = $element->getAttribute('value');
+                if (!empty($currentValue)) {
+                    $deleteVal = str_repeat(WebDriverKeys::BACKSPACE, strlen($currentValue));
+                    $element->sendKeys($deleteVal);
+                }
+
+                $actions = [];
+                foreach (str_split($value) as $char) {
+                    $actions[] = ['type' => 'keyDown', 'value' => $char];
+                    $actions[] = ['type' => 'keyUp', 'value' => $char];
+                }
+
+                $this->webDriver->execute(DriverCommand::ACTIONS, [
+                    'actions' => [
+                        [
+                            'type' => 'key',
+                            'id' => 'keyboard',
+                            'actions' => $actions,
+                        ],
+                    ],
+                ]);
+            } else {
+                $element->clear();
+            }
+        } else {
             $element->clear();
+            $element->sendKeys($value);
         }
 
-        if ($element->getAttribute('value') !== '') {
-            $element->sendKeys($value);
-            $this->executeJsOnElement($element, '{{ELEMENT}}.value = "' . strval($value) . '";');
-        } else {
-            $element->sendKeys($value);
-        }
         $this->trigger($xpath, 'blur');
     }
 
