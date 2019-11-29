@@ -827,47 +827,25 @@ JS;
             if ($this->isW3cCompliant()) {
 
                 // When we click on the element we click on the _middle_ of it.
-                $element->click();
+                $this->focus($xpath);
 
-                $currentValue = $element->getAttribute('value');
-                if (!empty($currentValue)) {
-                    // Move to the start of the string and do a forward delete.
-                    $actions = [];
-                    // Go to the start of the string.
-                    $actions[] = ['type' => 'keyDown', 'value' => WebDriverKeys::HOME];
-                    $actions[] = ['type' => 'keyUp', 'value' => WebDriverKeys::HOME];
-
-                    // This could be a multiline
-                    $actions[] = ['type' => 'keyDown', 'value' => WebDriverKeys::CONTROL];
-                    $actions[] = ['type' => 'keyDown', 'value' => WebDriverKeys::HOME];
-                    $actions[] = ['type' => 'keyUp', 'value' => WebDriverKeys::HOME];
-                    $actions[] = ['type' => 'keyUp', 'value' => WebDriverKeys::CONTROL];
-                    $actions[] = ['type' => 'keyDown', 'value' => WebDriverKeys::COMMAND];
-                    $actions[] = ['type' => 'keyDown', 'value' => WebDriverKeys::HOME];
-                    $actions[] = ['type' => 'keyUp', 'value' => WebDriverKeys::HOME];
-                    $actions[] = ['type' => 'keyUp', 'value' => WebDriverKeys::COMMAND];
-
-                    foreach (str_split($currentValue) as $char) {
-                        $actions[] = ['type' => 'keyDown', 'value' => WebDriverKeys::DELETE];
-                        $actions[] = ['type' => 'keyUp', 'value' => WebDriverKeys::DELETE];
-                    }
+                if ($this->isMac()) {
+                    $element->sendKeys(WebDriverKeys::COMMAND . 'a' . WebDriverKeys::NULL . WebDriverKeys::BACKSPACE);
+                } else {
+                    $element->sendKeys(WebDriverKeys::CONTROL . 'a' . WebDriverKeys::NULL . WebDriverKeys::BACKSPACE);
                 }
 
-                // Now enter the actual values.
-                foreach (str_split($value) as $char) {
-                    $actions[] = ['type' => 'keyDown', 'value' => $char];
-                    $actions[] = ['type' => 'keyUp', 'value' => $char];
-                }
+                // Some browsers still don't get rid of all of the characters.
+                // Get the current value and hit the backspace and delete keys that many times.
+                // We do both delete and backspace because we may be in the middle of the string.
+                // Yes. This is a hack.
+                $currentCharCount = strlen($element->getAttribute('value'));
+                $keys = '';
+                $keys .= str_repeat(WebDriverKeys::BACKSPACE, $currentCharCount);
+                $keys .= str_repeat(WebDriverKeys::DELETE, $currentCharCount);
+                $keys .= $value;
 
-                $this->webDriver->execute(DriverCommand::ACTIONS, [
-                    'actions' => [
-                        [
-                            'type' => 'key',
-                            'id' => 'keyboard',
-                            'actions' => $actions,
-                        ],
-                    ],
-                ]);
+                $element->sendKeys($keys);
 
                 $this->trigger($xpath, 'change');
 
@@ -1451,5 +1429,16 @@ EOF;
 EOF;
 
         $this->executeJsOnXpath($xpath, $script);
+    }
+
+    /**
+     * Helper to check for Mac.
+     *
+     * @return bool
+     */
+    protected function isMac()
+    {
+        $capabilities = $this->webDriver->getCapabilities()->toArray();
+        return strpos($capabilities['platformName'], 'mac') === 0;
     }
 }
