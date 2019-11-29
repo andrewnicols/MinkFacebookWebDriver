@@ -1360,6 +1360,9 @@ JS;
             case 'blur':
                 $this->dispatchBlurEvent($xpath);
                 break;
+            case 'focus':
+                $this->dispatchFocusEvent($xpath);
+                break;
             default:
                 throw new \InvalidArgumentException("{$event} not implemented");
                 break;
