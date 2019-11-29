@@ -20,25 +20,7 @@ class FacebookWebDriverConfig extends AbstractConfig
         $browser = $_ENV['BROWSER_NAME'];
         $seleniumHost = $_ENV['DRIVER_URL'];
         $capabilities = [
-            'chrome' => [
-                'args' => [
-                    '-headless',
-                ],
-                'log' => [
-                    'level' => 'trace',
-                ],
 
-            ],
-            'moz:firefoxOptions' => [
-                'args' => [
-                    '-headless',
-                ],
-                'log' => [
-                    'level' => 'trace',
-                ],
-
-            ],
-            'moz:webdriverClick' => true,
         ];
 
         return new FacebookWebDriver($browser, $capabilities, $seleniumHost);
