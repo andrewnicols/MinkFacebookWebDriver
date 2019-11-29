@@ -550,7 +550,7 @@ class FacebookWebDriver extends CoreDriver
     public function switchToIFrame($name = null)
     {
         if ($name) {
-            $element = $this->findElement(".//iframe[@name='{$name}']");
+            $element = $this->findElement(".//iframe[@name='{$name}' or @id='{$name}']");
             $this->webDriver->switchTo()->frame($element);
         } else {
             $this->webDriver->switchTo()->frame(null);
