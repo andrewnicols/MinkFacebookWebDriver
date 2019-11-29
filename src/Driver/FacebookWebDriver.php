@@ -313,28 +313,27 @@ class FacebookWebDriver extends CoreDriver
     /**
      * Creates some options for key events
      *
-     * @param string $char     the character or code
      * @param string $modifier one of 'shift', 'alt', 'ctrl' or 'meta'
-     *
-     * @return string a json encoded options array for Syn
+     * @return string
      */
-    protected static function charToOptions($char, $modifier = null)
+    protected static function translateModifier($modifier)
     {
-        $ord = ord($char);
-        if (is_numeric($char)) {
-            $ord = $char;
+        switch(strtolower($modifier)) {
+            case 'ctrl':
+                return WebDriverKeys::CONTROL;
+                break;
+            case 'alt':
+                return WebDriverKeys::ALT;
+                break;
+            case 'shift':
+                return WebDriverKeys::SHIFT;
+                break;
+            case 'meta':
+                return WebDriverKeys::META;
+                break;
+            default:
+                throw new \InvalidArgumentException("Unknown modifier '{$modifier}'");
         }
-
-        $options = array(
-            'keyCode'  => $ord,
-            'charCode' => $ord
-        );
-
-        if ($modifier) {
-            $options[$modifier.'Key'] = 1;
-        }
-
-        return json_encode($options);
     }
 
     /**
@@ -1054,27 +1053,20 @@ JS;
      */
     public function keyPress($xpath, $char, $modifier = null)
     {
-        $actions = [];
+        $keys = '';
+        $keys .= WebDriverKeys::NULL;
 
-        if ($modified) {
-            $actions[] = $actions[] = ['type' => 'keyDown', 'value' => $modifier];
+        if ($modifier) {
+            $keys .= self::translateModifier($modifier);
         }
 
-        $actions[] = ['type' => 'keyDown', 'value' => WebDriverKeys::HOME];
-        $actions[] = ['type' => 'keyUp', 'value' => WebDriverKeys::HOME];
-
-        if ($modified) {
-            $actions[] = $actions[] = ['type' => 'keyUp', 'value' => $modifier];
+        if (is_numeric($char)) {
+            $char = chr($char);
         }
-        $this->webDriver->execute(DriverCommand::ACTIONS, [
-            'actions' => [
-                [
-                    'type' => 'key',
-                    'id' => 'keyboard',
-                    'actions' => $actions,
-                ],
-            ],
-        ]);
+
+        $keys .= $char;
+        $keys .= WebDriverKeys::NULL;
+        $this->findElement($xpath)->sendKeys($keys);
     }
 
     /**
@@ -1082,23 +1074,20 @@ JS;
      */
     public function keyDown($xpath, $char, $modifier = null)
     {
-        $actions = [];
+        $keys = '';
+        $keys .= WebDriverKeys::NULL;
 
-        if ($modified) {
-            $actions[] = $actions[] = ['type' => 'keyDown', 'value' => $modifier];
+        if ($modifier) {
+            $keys .= self::translateModifier($modifier);
         }
 
-        $actions[] = ['type' => 'keyDown', 'value' => WebDriverKeys::HOME];
+        if (is_int($char)) {
+            $char = chr($char);
+        }
+        $keys .= $char;
+        $keys .= WebDriverKeys::NULL;
 
-        $this->webDriver->execute(DriverCommand::ACTIONS, [
-            'actions' => [
-                [
-                    'type' => 'key',
-                    'id' => 'keyboard',
-                    'actions' => $actions,
-                ],
-            ],
-        ]);
+        $this->findElement($xpath)->sendKeys($keys);
     }
 
     /**
@@ -1106,23 +1095,20 @@ JS;
      */
     public function keyUp($xpath, $char, $modifier = null)
     {
-        $actions = [];
+        $keys = '';
+        $keys .= WebDriverKeys::NULL;
 
-        $actions[] = ['type' => 'keyUp', 'value' => WebDriverKeys::HOME];
-
-        if ($modified) {
-            $actions[] = $actions[] = ['type' => 'keyUp', 'value' => $modifier];
+        if ($modifier) {
+            $keys .= self::translateModifier($modifier);
         }
 
-        $this->webDriver->execute(DriverCommand::ACTIONS, [
-            'actions' => [
-                [
-                    'type' => 'key',
-                    'id' => 'keyboard',
-                    'actions' => $actions,
-                ],
-            ],
-        ]);
+        if (is_int($char)) {
+            $char = chr($char);
+        }
+        $keys .= $char;
+        $keys .= WebDriverKeys::NULL;
+
+        $this->findElement($xpath)->sendKeys($keys);
     }
 
     /**
