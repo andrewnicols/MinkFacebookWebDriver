@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "42b8e5124e883899cd5ec141d915ea99",
+    "content-hash": "8bda190b9c5b8cb5477509318e95f212",
     "packages": [
         {
             "name": "behat/mink",
@@ -67,16 +67,16 @@
         },
         {
             "name": "facebook/webdriver",
-            "version": "dev-moodle",
+            "version": "dev-community",
             "source": {
                 "type": "git",
-                "url": "https://github.com/andrewnicols/php-webdriver",
-                "reference": "6bbdfe405030154e94fbf6ae9e2b1de79c6e9789"
+                "url": "https://github.com/facebook/php-webdriver.git",
+                "reference": "5dbadd61bdf64d05656379ae27364055da591a5a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/andrewnicols/php-webdriver/zipball/6bbdfe405030154e94fbf6ae9e2b1de79c6e9789",
-                "reference": "6bbdfe405030154e94fbf6ae9e2b1de79c6e9789",
+                "url": "https://api.github.com/repos/facebook/php-webdriver/zipball/5dbadd61bdf64d05656379ae27364055da591a5a",
+                "reference": "5dbadd61bdf64d05656379ae27364055da591a5a",
                 "shasum": ""
             },
             "require": {
@@ -111,31 +111,7 @@
                     "Facebook\\WebDriver\\": "lib/"
                 }
             },
-            "autoload-dev": {
-                "psr-4": {
-                    "Facebook\\WebDriver\\": [
-                        "tests/unit",
-                        "tests/functional"
-                    ]
-                },
-                "classmap": [
-                    "tests/functional/"
-                ]
-            },
-            "scripts": {
-                "codestyle:check": [
-                    "vendor/bin/php-cs-fixer fix --diff --diff-format=udiff --dry-run -vvv --ansi",
-                    "vendor/bin/phpcs --standard=PSR2 ./lib/ ./tests/"
-                ],
-                "codestyle:fix": [
-                    "vendor/bin/php-cs-fixer fix --diff --diff-format=udiff -vvv || exit 0",
-                    "vendor/bin/phpcbf --standard=PSR2 ./lib/ ./tests/"
-                ],
-                "analyze": [
-                    "vendor/bin/parallel-lint -j 10 ./lib ./tests",
-                    "vendor/bin/phpstan.phar analyze ./lib ./tests --level 2 -c phpstan.neon --ansi"
-                ]
-            },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "Apache-2.0"
             ],
@@ -147,12 +123,7 @@
                 "selenium",
                 "webdriver"
             ],
-            "support": {
-                "issues": "https://github.com/facebook/php-webdriver/issues",
-                "forum": "https://www.facebook.com/groups/phpwebdriver/",
-                "source": "https://github.com/facebook/php-webdriver"
-            },
-            "time": "2019-12-04T02:12:59+00:00"
+            "time": "2019-12-05T10:29:45+00:00"
         },
         {
             "name": "phpstan/phpstan-shim",
@@ -423,12 +394,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/minkphp/driver-testsuite.git",
-                "reference": "8c8d769984219240bca42fba677263074df051d5"
+                "reference": "55f273a70d8be972c329d52a7e3add22c78343e1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/minkphp/driver-testsuite/zipball/8c8d769984219240bca42fba677263074df051d5",
-                "reference": "8c8d769984219240bca42fba677263074df051d5",
+                "url": "https://api.github.com/repos/minkphp/driver-testsuite/zipball/55f273a70d8be972c329d52a7e3add22c78343e1",
+                "reference": "55f273a70d8be972c329d52a7e3add22c78343e1",
                 "shasum": ""
             },
             "require": {
@@ -466,7 +437,7 @@
             ],
             "description": "Functional testsuite for Mink drivers",
             "homepage": "http://mink.behat.org/",
-            "time": "2019-09-05T08:03:58+00:00"
+            "time": "2019-12-05T14:53:46+00:00"
         },
         {
             "name": "myclabs/deep-copy",
@@ -1085,16 +1056,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "7.5.17",
+            "version": "7.5.18",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "4c92a15296e58191a4cd74cff3b34fc8e374174a"
+                "reference": "fcf6c4bfafaadc07785528b06385cce88935474d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/4c92a15296e58191a4cd74cff3b34fc8e374174a",
-                "reference": "4c92a15296e58191a4cd74cff3b34fc8e374174a",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/fcf6c4bfafaadc07785528b06385cce88935474d",
+                "reference": "fcf6c4bfafaadc07785528b06385cce88935474d",
                 "shasum": ""
             },
             "require": {
@@ -1165,7 +1136,7 @@
                 "testing",
                 "xunit"
             ],
-            "time": "2019-10-28T10:37:36+00:00"
+            "time": "2019-12-06T05:14:37+00:00"
         },
         {
             "name": "sebastian/code-unit-reverse-lookup",
@@ -1945,14 +1916,7 @@
             "time": "2019-11-24T13:36:37+00:00"
         }
     ],
-    "aliases": [
-        {
-            "alias": "1.8.x-dev",
-            "alias_normalized": "1.8.9999999.9999999-dev",
-            "version": "dev-moodle",
-            "package": "facebook/webdriver"
-        }
-    ],
+    "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
         "behat/mink": 20,
