@@ -71,12 +71,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/facebook/php-webdriver.git",
-                "reference": "5dbadd61bdf64d05656379ae27364055da591a5a"
+                "reference": "5ee2b824a1c120fc9c24514af51e9f579d99ec5e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/facebook/php-webdriver/zipball/5dbadd61bdf64d05656379ae27364055da591a5a",
-                "reference": "5dbadd61bdf64d05656379ae27364055da591a5a",
+                "url": "https://api.github.com/repos/facebook/php-webdriver/zipball/5ee2b824a1c120fc9c24514af51e9f579d99ec5e",
+                "reference": "5ee2b824a1c120fc9c24514af51e9f579d99ec5e",
                 "shasum": ""
             },
             "require": {
@@ -94,6 +94,7 @@
                 "php-mock/php-mock-phpunit": "^1.1",
                 "phpunit/phpunit": "^5.7",
                 "sebastian/environment": "^1.3.4 || ^2.0 || ^3.0",
+                "sminnee/phpunit-mock-objects": "^3.4",
                 "squizlabs/php_codesniffer": "^2.6",
                 "symfony/var-dumper": "^3.3 || ^4.0 || ^5.0"
             },
@@ -123,7 +124,7 @@
                 "selenium",
                 "webdriver"
             ],
-            "time": "2019-12-05T10:29:45+00:00"
+            "time": "2019-12-09T14:45:14+00:00"
         },
         {
             "name": "phpstan/phpstan-shim",
@@ -167,6 +168,7 @@
                 "MIT"
             ],
             "description": "PHPStan Phar distribution",
+            "abandoned": "phpstan/phpstan",
             "time": "2019-10-22T20:46:16+00:00"
         },
         {

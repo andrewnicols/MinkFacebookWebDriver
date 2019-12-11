@@ -818,35 +818,6 @@ JS;
 
         $value = strval($value);
 
-        if (in_array($elementName, array('input', 'textarea'))) {
-            if ($this->isW3cCompliant()) {
-
-                // When we click on the element we click on the _middle_ of it.
-                $this->focus($xpath);
-
-                if ($this->isMac()) {
-                    $element->sendKeys(WebDriverKeys::COMMAND . 'a' . WebDriverKeys::NULL . WebDriverKeys::BACKSPACE);
-                } else {
-                    $element->sendKeys(WebDriverKeys::CONTROL . 'a' . WebDriverKeys::NULL . WebDriverKeys::BACKSPACE);
-                }
-
-                // Some browsers still don't get rid of all of the characters.
-                // Get the current value and hit the backspace and delete keys that many times.
-                // We do both delete and backspace because we may be in the middle of the string.
-                // Yes. This is a hack.
-                $currentCharCount = strlen($element->getAttribute('value'));
-                $keys = '';
-                $keys .= str_repeat(WebDriverKeys::BACKSPACE, $currentCharCount);
-                $keys .= str_repeat(WebDriverKeys::DELETE, $currentCharCount);
-                $keys .= $value;
-
-                $element->sendKeys($keys);
-
-                $this->trigger($xpath, 'change');
-
-                return;
-            }
-        }
         $element->clear();
         $element->sendKeys($value);
         $this->trigger($xpath, 'blur');
@@ -1049,20 +1020,20 @@ JS;
      */
     public function keyPress($xpath, $char, $modifier = null)
     {
+        $this->findElement($xpath)->click();
+
         $keys = '';
-        $keys .= WebDriverKeys::NULL;
+        $this->webDriver->getKeyboard()->sendKeys(WebDriverKeys::NULL);
 
         if ($modifier) {
-            $keys .= self::translateModifier($modifier);
+            $this->webDriver->getKeyboard()->sendKeys(self::translateModifier($modifier));
         }
 
-        if (is_numeric($char)) {
+        if (is_int($char)) {
             $char = chr($char);
         }
-
-        $keys .= $char;
-        $keys .= WebDriverKeys::NULL;
-        $this->findElement($xpath)->sendKeys($keys);
+        $this->webDriver->getKeyboard()->sendKeys($char);
+        $this->webDriver->getKeyboard()->sendKeys(WebDriverKeys::NULL);
     }
 
     /**
@@ -1070,20 +1041,20 @@ JS;
      */
     public function keyDown($xpath, $char, $modifier = null)
     {
+        $this->findElement($xpath)->click();
+
         $keys = '';
-        $keys .= WebDriverKeys::NULL;
+        $this->webDriver->getKeyboard()->pressKey(WebDriverKeys::NULL);
 
         if ($modifier) {
-            $keys .= self::translateModifier($modifier);
+            $this->webDriver->getKeyboard()->pressKey(self::translateModifier($modifier));
         }
 
         if (is_int($char)) {
             $char = chr($char);
         }
-        $keys .= $char;
-        $keys .= WebDriverKeys::NULL;
-
-        $this->findElement($xpath)->sendKeys($keys);
+        $this->webDriver->getKeyboard()->pressKey($char);
+        $this->webDriver->getKeyboard()->pressKey(WebDriverKeys::NULL);
     }
 
     /**
@@ -1091,20 +1062,20 @@ JS;
      */
     public function keyUp($xpath, $char, $modifier = null)
     {
-        $keys = '';
-        $keys .= WebDriverKeys::NULL;
+        $this->findElement($xpath)->click();
 
-        if ($modifier) {
-            $keys .= self::translateModifier($modifier);
-        }
+        $keys = '';
+        $this->webDriver->getKeyboard()->releaseKey(WebDriverKeys::NULL);
 
         if (is_int($char)) {
             $char = chr($char);
         }
-        $keys .= $char;
-        $keys .= WebDriverKeys::NULL;
 
-        $this->findElement($xpath)->sendKeys($keys);
+        if ($modifier) {
+            $this->webDriver->getKeyboard()->releaseKey(self::translateModifier($modifier));
+        }
+        $this->webDriver->getKeyboard()->releaseKey($char);
+        $this->webDriver->getKeyboard()->releaseKey(WebDriverKeys::NULL);
     }
 
     /**
