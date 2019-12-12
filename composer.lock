@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "8bda190b9c5b8cb5477509318e95f212",
+    "content-hash": "8d0e478ff96be9c54d8df62613ec7148",
     "packages": [
         {
             "name": "behat/mink",
@@ -67,16 +67,16 @@
         },
         {
             "name": "facebook/webdriver",
-            "version": "dev-community",
+            "version": "dev-moodle",
             "source": {
                 "type": "git",
-                "url": "https://github.com/facebook/php-webdriver.git",
-                "reference": "5ee2b824a1c120fc9c24514af51e9f579d99ec5e"
+                "url": "https://github.com/andrewnicols/php-webdriver.git",
+                "reference": "71fac9867c180009629ed130a301e2d8749ef803"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/facebook/php-webdriver/zipball/5ee2b824a1c120fc9c24514af51e9f579d99ec5e",
-                "reference": "5ee2b824a1c120fc9c24514af51e9f579d99ec5e",
+                "url": "https://api.github.com/repos/andrewnicols/php-webdriver/zipball/71fac9867c180009629ed130a301e2d8749ef803",
+                "reference": "71fac9867c180009629ed130a301e2d8749ef803",
                 "shasum": ""
             },
             "require": {
@@ -112,7 +112,31 @@
                     "Facebook\\WebDriver\\": "lib/"
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
+            "autoload-dev": {
+                "psr-4": {
+                    "Facebook\\WebDriver\\": [
+                        "tests/unit",
+                        "tests/functional"
+                    ]
+                },
+                "classmap": [
+                    "tests/functional/"
+                ]
+            },
+            "scripts": {
+                "codestyle:check": [
+                    "vendor/bin/php-cs-fixer fix --diff --diff-format=udiff --dry-run -vvv --ansi",
+                    "vendor/bin/phpcs --standard=PSR2 ./lib/ ./tests/"
+                ],
+                "codestyle:fix": [
+                    "vendor/bin/php-cs-fixer fix --diff --diff-format=udiff -vvv || exit 0",
+                    "vendor/bin/phpcbf --standard=PSR2 ./lib/ ./tests/"
+                ],
+                "analyze": [
+                    "vendor/bin/parallel-lint -j 10 ./lib ./tests",
+                    "vendor/bin/phpstan.phar analyze ./lib ./tests --level 2 -c phpstan.neon --ansi"
+                ]
+            },
             "license": [
                 "Apache-2.0"
             ],
@@ -124,7 +148,12 @@
                 "selenium",
                 "webdriver"
             ],
-            "time": "2019-12-09T14:45:14+00:00"
+            "support": {
+                "issues": "https://github.com/facebook/php-webdriver/issues",
+                "forum": "https://www.facebook.com/groups/phpwebdriver/",
+                "source": "https://github.com/facebook/php-webdriver"
+            },
+            "time": "2019-12-12T04:41:56+00:00"
         },
         {
             "name": "phpstan/phpstan-shim",
@@ -1918,7 +1947,14 @@
             "time": "2019-11-24T13:36:37+00:00"
         }
     ],
-    "aliases": [],
+    "aliases": [
+        {
+            "alias": "1.8.x-dev",
+            "alias_normalized": "1.8.9999999.9999999-dev",
+            "version": "dev-moodle",
+            "package": "facebook/webdriver"
+        }
+    ],
     "minimum-stability": "stable",
     "stability-flags": {
         "behat/mink": 20,
