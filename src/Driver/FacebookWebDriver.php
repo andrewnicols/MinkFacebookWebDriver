@@ -818,6 +818,13 @@ JS;
 
         $value = strval($value);
 
+        // In the W3C Webdriver specification, if a typeable element has any content, then the clearing of that element
+        // will trigger a blur following the clear.
+        // If the element has no content, then no change is made an the element is not blurred.
+        // To maintain compatability with older clients which do not want this blur behaviour we send the backspace key
+        // a number of times to empty the element first and prevent the blur.
+        // We still send the clear command to ensure that it is actually cleared.
+        $element->sendKeys(str_repeat(WebDriverKeys::BACKSPACE, strlen($initialValue)));
         $element->clear();
         $element->sendKeys($value);
         $this->trigger($xpath, 'blur');
