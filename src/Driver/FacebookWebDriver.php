@@ -824,7 +824,7 @@ JS;
         // To maintain compatability with older clients which do not want this blur behaviour we send the backspace key
         // a number of times to empty the element first and prevent the blur.
         // We still send the clear command to ensure that it is actually cleared.
-        $element->sendKeys(str_repeat(WebDriverKeys::BACKSPACE, strlen($initialValue)));
+        $element->sendKeys(str_repeat(WebDriverKeys::BACKSPACE, strlen($element->getAttribute('value'))));
         $element->clear();
         $element->sendKeys($value);
         $this->trigger($xpath, 'blur');
