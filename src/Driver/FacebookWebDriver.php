@@ -1027,7 +1027,11 @@ JS;
      */
     public function keyPress($xpath, $char, $modifier = null)
     {
-        $this->findElement($xpath)->click();
+        $activeElement = $this->webDriver->switchTo()->activeElement();
+        $targetElement = $this->findElement($xpath);
+        if ($activeElement->getID() !== $targetElement->getID()) {
+            $targetElement->click();
+        }
 
         $keys = '';
         $this->webDriver->getKeyboard()->sendKeys(WebDriverKeys::NULL);
@@ -1048,7 +1052,11 @@ JS;
      */
     public function keyDown($xpath, $char, $modifier = null)
     {
-        $this->findElement($xpath)->click();
+        $activeElement = $this->webDriver->switchTo()->activeElement();
+        $targetElement = $this->findElement($xpath);
+        if ($activeElement->getID() !== $targetElement->getID()) {
+            $targetElement->click();
+        }
 
         $keys = '';
         $this->webDriver->getKeyboard()->pressKey(WebDriverKeys::NULL);
@@ -1069,7 +1077,11 @@ JS;
      */
     public function keyUp($xpath, $char, $modifier = null)
     {
-        $this->findElement($xpath)->click();
+        $activeElement = $this->webDriver->switchTo()->activeElement();
+        $targetElement = $this->findElement($xpath);
+        if ($activeElement->getID() !== $targetElement->getID()) {
+            $targetElement->click();
+        }
 
         $keys = '';
         $this->webDriver->getKeyboard()->releaseKey(WebDriverKeys::NULL);
