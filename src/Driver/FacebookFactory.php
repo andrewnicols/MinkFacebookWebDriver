@@ -93,7 +93,7 @@ class FacebookFactory implements DriverFactory
         return new Definition(
             FacebookWebDriver::class,
             [
-                $config['capabilities']['browserName'],
+                $config['browser'],
                 array_replace($this->guessCapabilities(), $config['capabilities']),
                 $config['wd_host'],
             ]
@@ -115,7 +115,6 @@ class FacebookFactory implements DriverFactory
             ->children()
                 ->scalarNode('browserName')
                     ->info('Identifies the user agent.')
-                    ->isRequired()
                 ->end()
                 ->scalarNode('browserVersion')
                     ->info('Identifies the version of the user agent.')
